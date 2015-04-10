@@ -42,10 +42,10 @@ namespace GeoIPDBMigrator
 
             ipInLong = IPHelper.ConvertIPToLong(ip);
 
-            var row = mongoDB.GetAll().SingleOrDefault(i => i.Start <= ipInLong && i.End >= ipInLong);
+            var row = mongoDB.GetAll().Where(i => i.Start <= ipInLong && i.End >= ipInLong).ToList();
 
-            if (row != null)
-                return row.Country.ToLower();
+            if (row.Count() > 0)
+                return row[0].Country.ToLower();
 
             return "";
         }
