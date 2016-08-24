@@ -1,5 +1,7 @@
 DOWNLOAD IP DBs HERE:
 
-http://download.db-ip.com/free/dbip-country-2015-05.csv.gz
-http://download.ip2location.com/lite/
-http://www.ipligence.com/ip_db_download
+http://download.db-ip.com/free/dbip-country-2015-05.csv.gz		[OK, free and prefered]
+http://download.ip2location.com/lite/							[OK, but limited]
+http://www.ipligence.com/ip_db_download							[disabled]
+
+https://www.iplocation.net/ - web view

@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,9 +11,19 @@ namespace GeoIPDBMigrator
     public class GeoIPDBMigrator
     {
         MongoDBController<IPRange> mongoDB = null;
+        string[] countryFilter;
+
 
         public GeoIPDBMigrator(string db,string collection, string connection)
         {
+            string temp = ConfigurationManager.AppSettings["countryfilter"];
+
+            if(String.IsNullOrEmpty(temp))
+            {
+                temp = "nz";
+            }
+
+            countryFilter = temp.Split('|');
             this.mongoDB = new MongoDBController<IPRange>(db, collection, connection, true);
         }
 
@@ -26,6 +37,7 @@ namespace GeoIPDBMigrator
             mongoDB.Insert(log);
         }
 
+        //WHY DID I MAKE SUCH METHOD?
         public bool CheckIfConnected()
         {
             return mongoDB.Connect(); ;
@@ -50,9 +62,14 @@ namespace GeoIPDBMigrator
             return "";
         }
 
+        //
         public long MigrateDataFromCSV(string path, bool convertIPToLong)
         {
             long count = 0;
+
+            //prepare country filter
+            int maxCountryFilterIndex = countryFilter.Length;
+
 
             using (TextFieldParser parser = new TextFieldParser(path))
             {
@@ -61,6 +78,7 @@ namespace GeoIPDBMigrator
 
                 while (true)
                 {
+                    bool isFilterCountryMatch = false;
                     string[] parts = parser.ReadFields();
 
                     if (parts == null)
@@ -68,7 +86,16 @@ namespace GeoIPDBMigrator
                         break;
                     }
 
-                    if (parts[2].ToString().ToLower() == "nz" && !parts[1].ToString().Contains('f'))
+                    for (int i = 0; i < maxCountryFilterIndex; i++) //check if country is on filters.
+                    {
+                        if(parts[2].ToString().ToLower() == countryFilter[i].ToLower())
+                        {
+                            isFilterCountryMatch = true;
+                            break;
+                        }
+                    }     
+
+                    if (isFilterCountryMatch == true && !parts[1].ToString().Contains('f'))
                     {
                         Int64 start = 0;
                         Int64 end = 0;
